@@ -12,7 +12,7 @@ temp_pen = turtle.Turtle()
 temp_pen.speed(0)
 temp_pen.color('white')
 temp_pen.penup()
-temp_pen.goto((-250, 350))
+temp_pen.goto(0, 350)
 temp_pen.pendown()
 temp_pen.write('SCORE:{}    LIVES:{}'.format(score, lives), font=('Courier', 24, ''), align='center')
 
@@ -101,11 +101,11 @@ level_1 = [
     "XX PXXX XX P        P    XXX X",
     "XX  D   XXXXX XXXX  XXXX XXX X",
     "XX XXXX XXXXX    X  XXXX XXX X",
-    "X    P      X XX     P    M  X",
-    "X XXXXXXXXXXX XX XXXXX XXXX XX",
-    "X XX  P  MXXX XX     X   PX  X",
+    "X    P      X DX     P    M  X",
+    "X XXXXXXXXXXX  X XXXXX XXXX XX",
+    "X XX  P  MXXXD X     X   PX  X",
     "X XX XXXX X   P X XX  PXX XX X",
-    "X XX XXXX X  XX X  X XXXXPXX X",
+    "X XX XXXX X  XXJX MX XXXXPXX X",
     "X J P     XX XX XX X   M  XX X",
     "XPXXX XXX     P  XX   XXXX  PX",
     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"]
@@ -125,65 +125,74 @@ def walls():
     return wall
 
 
+w = walls()
 direction = 'stop'
 
-oggy = Oggy(walls(), direction)
+oggy = Oggy(w, direction)
 
 points = []
 cockroaches = []
-for i in range(len(level_1)):
-    for j in range(len(level_1[i])):
-        c = level_1[i][j]
 
-        screen_x = -300 + (j * 20)
-        screen_y = 300 - (i * 20)
+path = []
+def create_game():
+    for i in range(len(level_1)):
+        for j in range(len(level_1[i])):
+            c = level_1[i][j]
 
-        if c == "X":
-            pen.goto(screen_x, screen_y)
-            pen.stamp()
+            screen_x = -300 + (j * 20)
+            screen_y = 300 - (i * 20)
 
-        if c == 'O':
-            oggy.goto(screen_x, screen_y)
+            if c == "X":
+                pen.goto(screen_x, screen_y)
+                pen.stamp()
 
-        if c == 'D':
-            dee = turtle.Turtle()
-            dee.speed(10)
-            dee.color('red')
-            dee.shape('turtle')
-            dee.penup()
-            dee.shapesize(stretch_wid=0.8, stretch_len=0.8)
-            dee.goto((screen_x, screen_y))
-            cockroaches.append(dee)
+            if c == 'O':
+                oggy.goto(screen_x, screen_y)
+            if c == 'D':
+                dee = turtle.Turtle()
+                dee.speed(10)
+                dee.color('red')
+                dee.shape('turtle')
+                dee.penup()
+                dee.shapesize(stretch_wid=0.8, stretch_len=0.8)
+                dee.goto((screen_x, screen_y))
+                cockroaches.append(dee)
 
-        if c == 'J':
-            joey = turtle.Turtle()
-            joey.speed(10)
-            joey.color('purple')
-            joey.shape('turtle')
-            joey.penup()
-            joey.shapesize(stretch_wid=0.8, stretch_len=0.8)
-            joey.goto((screen_x, screen_y))
-            cockroaches.append(joey)
+            if c == 'J':
+                joey = turtle.Turtle()
+                joey.speed(10)
+                joey.color('purple')
+                joey.shape('turtle')
+                joey.penup()
+                joey.shapesize(stretch_wid=0.8, stretch_len=0.8)
+                joey.goto((screen_x, screen_y))
+                cockroaches.append(joey)
 
-        if c == 'M':
-            marky = turtle.Turtle()
-            marky.speed(10)
-            marky.color('dark green')
-            marky.shape('turtle')
-            marky.penup()
-            marky.shapesize(stretch_wid=0.8, stretch_len=0.8)
-            marky.goto((screen_x, screen_y))
-            cockroaches.append(marky)
+            if c == 'M':
+                marky = turtle.Turtle()
+                marky.speed(10)
+                marky.color('dark green')
+                marky.shape('turtle')
+                marky.penup()
+                marky.shapesize(stretch_wid=0.8, stretch_len=0.8)
+                marky.goto((screen_x, screen_y))
+                cockroaches.append(marky)
 
-        if c == 'P':
-            point = turtle.Turtle()
-            point.speed(10)
-            point.color('yellow')
-            point.shape('circle')
-            point.shapesize(stretch_wid=0.4, stretch_len=0.4)
-            point.penup()
-            point.goto((screen_x, screen_y))
-            points.append(point)
+            if c == 'P':
+                point = turtle.Turtle()
+                point.speed(10)
+                point.color('yellow')
+                point.shape('circle')
+                point.shapesize(stretch_wid=0.4, stretch_len=0.4)
+                point.penup()
+                point.goto((screen_x, screen_y))
+                points.append(point)
+
+            if c == ' ':
+                path.append((screen_x, screen_y))
+
+
+create_game()
 
 
 # def move(cock, w):
@@ -208,31 +217,48 @@ wn.onkeypress(oggy.moveRight, 'Right')
 wn.onkeypress(oggy.moveUp, 'Up')
 wn.onkeypress(oggy.moveDown, 'Down')
 
-
+restart= 0
 while True:
     wn.update()
     oggy.movement()
     # move(dee, walls())
     # move(joey, walls())
     # move(marky, walls())
+
     for point in points:
-        if oggy.pos() == point.pos():
-            point.hideturtle()
+        if oggy.pos() == point.pos() and lives > 0:
+            # point.hideturtle()
+            spawn_loc = random.choice(path)
+            point.goto(spawn_loc)
+
             temp_pen.clear()
             score += 1
             temp_pen.write('SCORE:{}    LIVES:{}'.format(score, lives), font=('Courier', 24, ''), align='center')
-            points.remove(point)
+
     for cockroach in cockroaches:
-        if oggy.pos() == cockroach.pos():
+        if oggy.pos() == cockroach.pos() and lives > 0:
             temp_pen.clear()
             lives -= 1
             temp_pen.write('SCORE:{}    LIVES:{}'.format(score, lives), font=('Courier', 24, ''), align='center')
             time.sleep(1)
-    if lives == 0:
+    if lives == 0 and restart == 0:
         temp_pen.clear()
         temp_pen.write('SCORE:{}'.format(score), font=('Courier', 24, ''), align='center')
         temp_pen.clear()
-        temp_pen.goto(0, 350)
+
         temp_pen.write('GAME OVER!', font=('Courier', 48, ''), align='center')
+        time.sleep(2)
+
+        restart = 1
+
+    if restart == 1:
+        score = 0
+        lives = 3
+
         temp_pen.clear()
-        temp_pen.write('PRESS "R" to RESTART', font=('Courier', 48, ''), align='center')
+        temp_pen.write('RESETTING GAME!', font=('Courier', 48, ''), align='center')
+        create_game()
+        temp_pen.clear()
+        temp_pen.write('SCORE:{}    LIVES:{}'.format(score, lives), font=('Courier', 24, ''), align='center')
+
+        restart = 0
